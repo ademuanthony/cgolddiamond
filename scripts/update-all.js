@@ -9,10 +9,10 @@ async function deployDiamond () {
   const accounts = await ethers.getSigners()
   const contractOwner = accounts[0]
 
-  const MockC250PriceOracle = await ethers.getContractFactory('MockC250PriceOracle')
+  const MockC250PriceOracle = await ethers.getContractFactory('C250PriceOracle')
   const c250PriceOracle = await MockC250PriceOracle.deploy()
   await c250PriceOracle.deployed()
-  console.log('MockC250PriceOracle deployed:', c250PriceOracle.address)
+  console.log('C250PriceOracle deployed:', c250PriceOracle.address)
 
   const TimeProvider = await ethers.getContractFactory('TimeProvider')
     const timeProvider = await TimeProvider.deploy()
@@ -28,10 +28,11 @@ async function deployDiamond () {
 
   console.log('Deploying facets')
   const FacetNames = [
-    'ERC20Facet',
+    'GlobalFacet',
     'SystemFacet',
     'ClassicPlanFacet',
-    'PremiumPlanFacet'
+    'PremiumPlanFacet',
+    'PremiumExtensionFacet',
   ]
   const cut = []
   for (const FacetName of FacetNames) {

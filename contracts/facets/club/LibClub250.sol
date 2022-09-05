@@ -12,7 +12,6 @@ library LibClub250 {
 
     function initialize(
         address _priceOracle,
-        address _timeProvider,
         address _treasury
     ) internal {
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -32,7 +31,6 @@ library LibClub250 {
 
         es.classicActivationDays.push(getTheDayBefore(block.number));
         es.priceOracle = IC250PriceOracle(_priceOracle);
-        es.timeProvider = ITimeProvider(_timeProvider);
         es.treasury = _treasury;
 
         buildClassicConfig();
@@ -42,7 +40,7 @@ library LibClub250 {
             registerMain(msg.sender);
             es.classicIndex++;
             es.users[1].classicIndex = es.classicIndex;
-            es.users[1].classicCheckpoint = es.timeProvider.currentTime();
+            es.users[1].classicCheckpoint = block.timestamp;
         }
     }
 

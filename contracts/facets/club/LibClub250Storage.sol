@@ -12,7 +12,6 @@ library LibClub250Storage {
         uint256[] classicReferralPercentages;
         uint256 percentageDivisor;
         IC250PriceOracle priceOracle;
-        ITimeProvider timeProvider;
         address treasury;
         mapping(uint256 => ClassicConfig) classicConfigurations;
         uint256 totalPayout;

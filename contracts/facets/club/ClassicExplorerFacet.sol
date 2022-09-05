@@ -22,7 +22,7 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
         uint256 earningCounter;
         uint256 lastLevel;
 
-        uint256 today = getTheDayBefore(es.timeProvider.currentTime());
+        uint256 today = getTheDayBefore(block.timestamp);
 
         for (uint256 day = getTheDayBefore(user.classicCheckpoint); day < today; day += (1 days)) {
             if (getWeekday(day) == 0) {
@@ -112,7 +112,7 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
 
         uint256 directPremiumCount = getDirectPremiumDownlineCount(userID, timestamp);
 
-        if (getTheDayBefore(timestamp) != getTheDayBefore(es.timeProvider.currentTime())) {
+        if (getTheDayBefore(timestamp) != getTheDayBefore(block.timestamp)) {
             for (uint256 i = user.activationDays.length - 1; i >= 0; i--) {
                 if (user.activationDays[i] <= timestamp) {
                     directDownlineCount = user.activeDownlines[user.activationDays[i]];

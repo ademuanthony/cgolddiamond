@@ -26,7 +26,6 @@ contract DiamondInit {
     // data to set your own state variables
     function init(
         address _priceOracle,
-        address _timeProvider,
         address _treasury
     ) external {
         // adding ERC165 data
@@ -43,7 +42,7 @@ contract DiamondInit {
         if (LibERC20Storage.erc20Storage().presaleBalance[_treasury] == 0) {
             LibERC20Storage.erc20Storage().presaleBalance[_treasury] = 50000 * 1e18;
         }
-        LibClub250.initialize(_priceOracle, _timeProvider, _treasury);
+        LibClub250.initialize(_priceOracle, _treasury);
 
         // add your own state variables
         // EIP-2535 specifies that the `diamondCut` function takes two optional

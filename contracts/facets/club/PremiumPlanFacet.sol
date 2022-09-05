@@ -33,7 +33,7 @@ contract PremiumPlanFacet is PremiumBase {
 
         LibERC20.burn(msg.sender, amountFromDollar(es.upgradeFee));
 
-        uint256 today = getTheDayBefore(es.timeProvider.currentTime());
+        uint256 today = getTheDayBefore(block.timestamp);
         uint256 lastPremiumDay;
         uint256 lastPremiumCount;
 
@@ -120,10 +120,10 @@ contract PremiumPlanFacet is PremiumBase {
             uint256 rightLevel
         )
     {
-       return _getDirectLegs(userID, level);
+        return _getDirectLegs(userID, level);
     }
 
-    function premiumCounter() external view returns(uint256) {
+    function premiumCounter() external view returns (uint256) {
         return LibClub250Storage.club250Storage().premiumCounter;
     }
 }

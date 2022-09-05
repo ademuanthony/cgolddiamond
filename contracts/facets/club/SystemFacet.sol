@@ -28,9 +28,6 @@ contract SystemFacet is Club250Base, CallProtection {
     function priceOracle() external view returns(address) {
         return address(LibClub250Storage.club250Storage().priceOracle);
     }
-    function timeProvider() external view returns(address) {
-        return address(LibClub250Storage.club250Storage().timeProvider);
-    }
 
     function live() external view returns(bool) {
         return LibClub250Storage.club250Storage().live;
@@ -63,11 +60,6 @@ contract SystemFacet is Club250Base, CallProtection {
     function setPriceOracle(address oracle) external protectedCall {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         es.priceOracle = IC250PriceOracle(oracle);
-    }
-
-    function setTimeProvider(address _timePovider) external protectedCall {
-        LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        es.timeProvider = ITimeProvider(_timePovider);
     }
 
     function setTreasuryWallet(address addr) external protectedCall {

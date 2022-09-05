@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./PremiumBase.sol";
 import "./LibClub250Storage.sol";
-import { LibDiamond } from "../../libraries/LibDiamond.sol";
+import {LibDiamond} from "../../libraries/LibDiamond.sol";
 import "../shared/Access/CallProtection.sol";
 import "../ERC20/LibERC20.sol";
 import "hardhat/console.sol";
@@ -29,7 +29,7 @@ contract PremiumExtensionFacet is PremiumBase {
 
         LibERC20.burn(msg.sender, amountFromDollar(es.upgradeFee));
 
-        uint256 today = getTheDayBefore(es.timeProvider.currentTime());
+        uint256 today = getTheDayBefore(block.timestamp);
         uint256 lastPremiumDay;
         uint256 lastPremiumCount;
 
@@ -86,5 +86,4 @@ contract PremiumExtensionFacet is PremiumBase {
 
         emit NewUpgrade(msg.sender, userID);
     }
-
 }

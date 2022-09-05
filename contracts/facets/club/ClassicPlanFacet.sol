@@ -129,11 +129,11 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         require(es.userAddresses[userID] == msg.sender, "ACCESS_DENIED");
         (uint256 dollarAmount, uint256 earningCounter) = withdrawable(userID);
         require(dollarAmount > 0, "ZERO_WITHDRAWAL");
-        es.users[userID].classicCheckpoint = es.timeProvider.currentTime();
-        es.users[userID].classicEarningCount[getClassicLevelAt(userID, es.timeProvider.currentTime())] = earningCounter;
+        es.users[userID].classicCheckpoint = block.timestamp;
+        es.users[userID].classicEarningCount[getClassicLevelAt(userID, block.timestamp)] = earningCounter;
         // @dev update the downline count (if empty) at this checkpoint for the next call to getLevelAt
-        if (es.users[userID].activeDownlines[getTheDayBefore(es.timeProvider.currentTime())] == 0) {
-            es.users[userID].activeDownlines[getTheDayBefore(es.timeProvider.currentTime())] = es.users[userID].referrals.length;
+        if (es.users[userID].activeDownlines[getTheDayBefore(block.timestamp)] == 0) {
+            es.users[userID].activeDownlines[getTheDayBefore(block.timestamp)] = es.users[userID].referrals.length;
         }
         es.totalPayout = es.totalPayout.add(dollarAmount);
         sendPayout(msg.sender, dollarAmount, false);
@@ -163,8 +163,8 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         LibERC20.burn(msg.sender, feeAmount);
         es.classicIndex++;
         es.users[id].classicIndex = es.classicIndex;
-        es.users[id].classicCheckpoint = es.timeProvider.currentTime();
-        uint256 today = getTheDayBefore(es.timeProvider.currentTime());
+        es.users[id].classicCheckpoint = block.timestamp;
+        uint256 today = getTheDayBefore(block.timestamp);
         if (es.users[id].referralID != 0) {
             es.users[es.users[id].referralID].referrals.push(id);
             if (
@@ -203,7 +203,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
 
     function earningsCount(uint256 userID) public view returns (uint256) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        uint256 level = getClassicLevelAt(userID, es.timeProvider.currentTime());
+        uint256 level = getClassicLevelAt(userID, block.timestamp);
         return es.users[userID].classicEarningCount[level];
     }
 
@@ -211,22 +211,22 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
     function withdrawable(uint256 userID) public view returns (uint256, uint256) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[userID];
-        if(user.activationDays.length == 0) {
-            return (0,0);
+        if (user.activationDays.length == 0) {
+            return (0, 0);
         }
         uint256 amount;
 
         uint256 earningCounter;
         uint256 lastLevel;
 
-        uint256 today = getTheDayBefore(es.timeProvider.currentTime());
+        uint256 today = getTheDayBefore(block.timestamp);
 
         for (uint256 day = getTheDayBefore(user.classicCheckpoint); day <= today; day += (1 days)) {
             if (getWeekday(day) == 0) {
                 continue;
             }
 
-            if(day == user.activationDays[0]) {
+            if (day == user.activationDays[0]) {
                 continue;
             }
 
@@ -261,12 +261,12 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         uint256 directPremiumCount = getDirectPremiumDownlineCount(userID, timestamp);
         // if the day is < his first activation date, 0
 
-        if (getTheDayBefore(timestamp) != getTheDayBefore(es.timeProvider.currentTime())) {
-            for(uint256 day = timestamp; day >= 0; day.sub(1 days)) {
+        if (getTheDayBefore(timestamp) != getTheDayBefore(block.timestamp)) {
+            for (uint256 day = timestamp; day >= 0; day.sub(1 days)) {
                 globalIndex = es.activeGlobalDownlines[getTheDayBefore(day)];
-                if(globalIndex > 0) break;
+                if (globalIndex > 0) break;
             }
-            
+
             for (uint256 i = user.activationDays.length - 1; i >= 0; i--) {
                 if (user.activationDays[i] <= timestamp) {
                     directDownlineCount = user.activeDownlines[user.activationDays[i]];
@@ -294,7 +294,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
 
     // @dev returns the current classic level of the user
     function getClassicLevel(uint256 userID) public view returns (uint256) {
-        return getClassicLevelAt(userID, LibClub250Storage.club250Storage().timeProvider.currentTime());
+        return getClassicLevelAt(userID, block.timestamp);
     }
 
     function getGlobalDownlines(uint256 _userID) public view returns (uint256) {
@@ -306,7 +306,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
     function recircle(uint256 _userID) external {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[_userID];
-        uint256 level = getClassicLevelAt(_userID, es.timeProvider.currentTime());
+        uint256 level = getClassicLevelAt(_userID, block.timestamp);
         LibClub250Storage.ClassicConfig memory config = es.classicConfigurations[level];
 
         (uint256 amount, ) = withdrawable(_userID);
@@ -316,7 +316,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
 
         uint256 globalDownlines = getGlobalDownlines(_userID);
         uint256 directReferrals = user.referrals.length;
-        uint256 directPremium = getDirectPremiumDownlineCount(_userID, es.timeProvider.currentTime());
+        uint256 directPremium = getDirectPremiumDownlineCount(_userID, block.timestamp);
 
         (uint256 globalExcess, uint256 directReferralsExcess, uint256 directPremiumExcess) = excessQualification(_userID);
         require(
@@ -327,7 +327,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         );
         user.classicCircles[level].push(LibClub250Storage.CircleCheckpoint(globalDownlines, directReferrals, directPremium));
 
-        user.classicCheckpoint = es.timeProvider.currentTime();
+        user.classicCheckpoint = block.timestamp;
         user.classicEarningCount[level] = 0;
     }
 
@@ -342,12 +342,12 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
     {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[_userID];
-        uint256 level = getClassicLevelAt(_userID, es.timeProvider.currentTime());
+        uint256 level = getClassicLevelAt(_userID, block.timestamp);
         LibClub250Storage.ClassicConfig memory config = es.classicConfigurations[level];
 
         uint256 globalDownlines = getGlobalDownlines(_userID);
         uint256 directReferrals = user.referrals.length;
-        uint256 directPremium = getDirectPremiumDownlineCount(_userID, es.timeProvider.currentTime());
+        uint256 directPremium = getDirectPremiumDownlineCount(_userID, block.timestamp);
 
         uint256 circleCount = user.classicCircleCount[level];
 

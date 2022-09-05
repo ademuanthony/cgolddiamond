@@ -54,7 +54,7 @@ contract PremiumPlanFacet is PremiumBase {
         if (accountIsInPremium(user.referralID)) {
             referralEarner = es.userAddresses[user.referralID];
         }
-        sendPayout(referralEarner, amountFromDollar(es.upgradeFee.div(2)));
+        sendPayout(referralEarner, amountFromDollar(es.upgradeFee.div(2)), true);
 
         uint256 sponsorID = getPremiumSponsor(userID, 0);
         emit PremiumReferralPayout(sponsorID, userID, amountFromDollar(es.upgradeFee.div(2)));
@@ -108,6 +108,19 @@ contract PremiumPlanFacet is PremiumBase {
 
     function isAccountIInPremium(uint256 userID) external view returns (bool) {
         return userID == 1 || LibClub250Storage.club250Storage().users[userID].premiumLevel > 0;
+    }
+
+    function getDirectLegs(uint256 userID, uint256 level)
+        external
+        view
+        returns (
+            uint256 left,
+            uint256 leftLevel,
+            uint256 right,
+            uint256 rightLevel
+        )
+    {
+       return _getDirectLegs(userID, level);
     }
 
     function premiumCounter() external view returns(uint256) {

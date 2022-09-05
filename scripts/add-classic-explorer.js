@@ -13,23 +13,23 @@ async function deployDiamond () {
 
    const timeProviderAddress = process.env.TIME_PROVIDER_ADDRESS
 
-  const diamondInitAddress = '0x278f645438d03E4FeE519fD09d24c05F9EEf9A0C'
+  const diamondInitAddress = process.env.DIAMOND_INIT_ADDRESS
   
   console.log('Deploying facets')
   const FacetNames = [
-    'ClassicExplorerFacet',
+    'ClassicPlanFacet',
   ]
   const cut = []
   for (const FacetName of FacetNames) {
     const Facet = await ethers.getContractFactory(FacetName)
     const facet = await Facet.deploy()
-    //await facet.deployed()
+    await facet.deployed()
     console.log(`${FacetName} deployed: ${facet.address}`)
     cut.push({
-      facetAddress: ethers.constants.AddressZero,
-      //facetAddress: facet.address,
-      action: FacetCutAction.Remove,
-      //action: FacetCutAction.Add,
+      //facetAddress: ethers.constants.AddressZero,
+      facetAddress: facet.address,
+      //action: FacetCutAction.Remove,
+      action: FacetCutAction.Add,
       functionSelectors: getSelectors(facet)
     })
   }

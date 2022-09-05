@@ -51,16 +51,16 @@ contract Club250Base {
         tokenAmount = LibClub250Storage.club250Storage().priceOracle.getQuote(address(this), uint128(dollarAmount), 10);
     }
 
-    function sendPayout(address account, uint256 dollarAmount) internal {
+    function sendPayout(address account, uint256 dollarAmount, bool isInternal) internal {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         uint256 tokenAmount = amountFromDollar(dollarAmount);
         uint256 fee = tokenAmount.mul(es.withdrawalFee).div(es.percentageDivisor);
 
-        LibERC20.mint(es.treasury, fee);
+        LibERC20.mint(es.treasury, fee, false);
         if (account == address(0)) {
             account = es.treasury;
         }
-        LibERC20.mint(account, tokenAmount.sub(fee));
+        LibERC20.mint(account, tokenAmount.sub(fee), isInternal);
         emit Withdrawal(msg.sender, dollarAmount);
     }
 }

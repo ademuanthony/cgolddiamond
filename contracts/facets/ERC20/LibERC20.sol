@@ -21,7 +21,7 @@ library LibERC20 {
 
         require(msg.sender == ds.contractOwner, "Must own the contract.");
 
-        LibERC20.mint(msg.sender, 1000000 * 1e18);
+        LibERC20.mint(msg.sender, 1000000 * 1e18, false);
 
         es.name = "C250GoldT";
         es.symbol = "CGOLDT";
@@ -32,7 +32,7 @@ library LibERC20 {
         return (bytes(es.name).length > 0 && bytes(es.symbol).length > 0);
     }
 
-    function mint(address _to, uint256 _amount) internal {
+    function mint(address _to, uint256 _amount, bool _isInternal) internal {
         require(_to != address(0), "INVALID_TO_ADDRESS");
 
         LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();
@@ -44,6 +44,11 @@ library LibERC20 {
 
         es.balances[_to] = es.balances[_to].add(_amount);
         es.totalSupply = es.totalSupply.add(_amount);
+
+        if(_isInternal) {
+
+            es.presaleBalance[_to] = es.presaleBalance[_to].add(_amount);
+        }
         emit Transfer(address(0), _to, _amount);
     }
 

@@ -126,7 +126,7 @@ contract PremiumBase is Club250Base, CallProtection, ReentryProtection {
             if (ids[i] == 0) {
                 break;
             }
-            (uint256 left, , uint256 right, ) = getDirectLegs(ids[i], level);
+            (uint256 left, , uint256 right, ) = _getDirectLegs(ids[i], level);
             if (left > 0) {
                 result[resultCount] = left;
                 resultCount += 1;
@@ -141,8 +141,8 @@ contract PremiumBase is Club250Base, CallProtection, ReentryProtection {
         return blockDownlines(result, level, gen - 1);
     }
 
-    function getDirectLegs(uint256 userID, uint256 level)
-        public
+    function _getDirectLegs(uint256 userID, uint256 level)
+        internal
         view
         returns (
             uint256 left,
@@ -175,7 +175,7 @@ contract PremiumBase is Club250Base, CallProtection, ReentryProtection {
             return beneficiary;
         }
 
-        sendPayout(es.userAddresses[beneficiary], amountFromDollar(es.levelConfigurations[level].perDropEarning));
+        sendPayout(es.userAddresses[beneficiary], amountFromDollar(es.levelConfigurations[level].perDropEarning), false);
         emit MatrixPayout(beneficiary, fromID, es.levelConfigurations[level].perDropEarning);
 
         return beneficiary;
@@ -227,7 +227,7 @@ contract PremiumBase is Club250Base, CallProtection, ReentryProtection {
         uint256 pendingPayoutCount = _getMatrixPayoutCount(userID, newLevel);
         if (pendingPayoutCount > 0) {
             uint256 pendingAmount = pendingPayoutCount.mul(es.levelConfigurations[newLevel].perDropEarning);
-            sendPayout(es.userAddresses[userID], amountFromDollar(pendingAmount));
+            sendPayout(es.userAddresses[userID], amountFromDollar(pendingAmount), false);
         }
 
         uint256 benefactor = sendMatrixPayout(userID, newLevel);

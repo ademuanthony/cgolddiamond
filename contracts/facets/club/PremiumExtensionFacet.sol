@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./PremiumBase.sol";
 import "./LibClub250Storage.sol";
+import { LibDiamond } from "../../libraries/LibDiamond.sol";
 import "../shared/Access/CallProtection.sol";
 import "../ERC20/LibERC20.sol";
 import "hardhat/console.sol";
@@ -21,8 +22,8 @@ contract PremiumExtensionFacet is PremiumBase {
         require(es.users[userID].registered, "INVALID_USER_ID");
         uint256 sponsorID = es.users[userID].referralID;
         require(accountIsInPremium(sponsorID), "SPONSOR_NOT_PREMIUM");
-        require(es.userAddresses[sponsorID] == msg.sender, "ACCESS_DENIED");
-        require(es.users[userID].uplineID == es.users[userID].referralID, "REQUIRE_DEIFFERENT_SPONSOR");
+        require(es.userAddresses[sponsorID] == msg.sender || msg.sender == LibDiamond.contractOwner(), "ACCESS_DENIED");
+        require(es.users[userID].uplineID == 0 || es.users[userID].uplineID == es.users[userID].referralID, "REQUIRE_DEIFFERENT_SPONSOR");
 
         LibClub250Storage.User storage user = es.users[userID];
 
@@ -49,7 +50,7 @@ contract PremiumExtensionFacet is PremiumBase {
         if (accountIsInPremium(user.referralID)) {
             referralEarner = es.userAddresses[user.referralID];
         }
-        sendPayout(referralEarner, amountFromDollar(es.upgradeFee.div(2)));
+        sendPayout(referralEarner, amountFromDollar(es.upgradeFee.div(2)), true);
 
         emit PremiumReferralPayout(sponsorID, userID, amountFromDollar(es.upgradeFee.div(2)));
 

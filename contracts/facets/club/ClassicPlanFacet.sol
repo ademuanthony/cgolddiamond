@@ -136,7 +136,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             es.users[userID].activeDownlines[getTheDayBefore(es.timeProvider.currentTime())] = es.users[userID].referrals.length;
         }
         es.totalPayout = es.totalPayout.add(dollarAmount);
-        sendPayout(msg.sender, dollarAmount);
+        sendPayout(msg.sender, dollarAmount, false);
     }
 
     function getWeekday(uint256 timestamp) public pure returns (uint8) {
@@ -181,7 +181,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
                     if (es.userAddresses[upline] != address(0)) {
                         uint256 refAmount = feeAmount.mul(es.classicReferralPercentages[i]).div(es.percentageDivisor);
                         refTotal = refTotal.add(refAmount);
-                        LibERC20.mint(es.userAddresses[upline], amountFromDollar(refAmount));
+                        LibERC20.mint(es.userAddresses[upline], amountFromDollar(refAmount), true);
                         emit ClassicRefBonus(id, upline, i + 1);
                     }
                     upline = es.users[upline].referralID;
@@ -211,6 +211,9 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
     function withdrawable(uint256 userID) public view returns (uint256, uint256) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[userID];
+        if(user.activationDays.length == 0) {
+            return (0,0);
+        }
         uint256 amount;
 
         uint256 earningCounter;
@@ -218,10 +221,15 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
 
         uint256 today = getTheDayBefore(es.timeProvider.currentTime());
 
-        for (uint256 day = getTheDayBefore(user.classicCheckpoint).add(1 days); day <= today; day += (1 days)) {
+        for (uint256 day = getTheDayBefore(user.classicCheckpoint); day <= today; day += (1 days)) {
             if (getWeekday(day) == 0) {
                 continue;
             }
+
+            if(day == user.activationDays[0]) {
+                continue;
+            }
+
             uint256 level = getClassicLevelAt(userID, day);
             if (level == 0 && lastLevel == 0) continue;
             if (level != lastLevel) {

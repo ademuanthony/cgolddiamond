@@ -73,7 +73,7 @@ async function deployDiamond (timeProviderAddress) {
   let receipt
   // call to init function
   let functionCall = diamondInit.interface.encodeFunctionData('init', [
-    c250PriceOracle.address, timeProviderAddress, contractOwner.address
+    c250PriceOracle.address, contractOwner.address
   ])
   tx = await diamondCut.diamondCut(cut, diamondInit.address, functionCall)
   console.log('Diamond cut tx: ', tx.hash)

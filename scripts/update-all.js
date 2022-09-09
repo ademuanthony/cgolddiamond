@@ -9,30 +9,33 @@ async function deployDiamond () {
   const accounts = await ethers.getSigners()
   const contractOwner = accounts[0]
 
-  const MockC250PriceOracle = await ethers.getContractFactory('C250PriceOracle')
-  const c250PriceOracle = await MockC250PriceOracle.deploy()
-  await c250PriceOracle.deployed()
-  console.log('C250PriceOracle deployed:', c250PriceOracle.address)
+  const c250PriceOracleAddress = process.env.PRICE_ORACLE_ADDRESS;
 
-  const TimeProvider = await ethers.getContractFactory('TimeProvider')
-    const timeProvider = await TimeProvider.deploy()
-    await timeProvider.deployed()
-    console.log('TimeProvider deployed:', timeProvider.address)
-    timeProviderAddress = timeProvider.address
+  // const MockC250PriceOracle = await ethers.getContractFactory('C250PriceOracle')
+  // const c250PriceOracle = await MockC250PriceOracle.deploy()
+  // await c250PriceOracle.deployed()
+  // console.log('C250PriceOracle deployed:', c250PriceOracleAddress)
+
+  // const TimeProvider = await ethers.getContractFactory('TimeProvider')
+  //   const timeProvider = await TimeProvider.deploy()
+  //   await timeProvider.deployed()
+  //   console.log('TimeProvider deployed:', timeProvider.address)
+  //   timeProviderAddress = timeProvider.address
 
   const DiamondInit = await ethers.getContractFactory('DiamondInit')
   let diamondInit = await DiamondInit.deploy()
   await diamondInit.deployed()
   console.log('DiamondInit deployed:', diamondInit.address)
+
   const diamondInitAddress = diamondInit.address
 
   console.log('Deploying facets')
   const FacetNames = [
-    'GlobalFacet',
+    //'GlobalFacet',
     'SystemFacet',
-    'ClassicPlanFacet',
-    'PremiumPlanFacet',
-    'PremiumExtensionFacet',
+    //'ClassicPlanFacet',
+    //'PremiumPlanFacet',
+    //'PremiumExtensionFacet',
   ]
   const cut = []
   for (const FacetName of FacetNames) {
@@ -42,7 +45,7 @@ async function deployDiamond () {
     console.log(`${FacetName} deployed: ${facet.address}`)
     cut.push({
       facetAddress: facet.address,
-      action: FacetCutAction.Replace,
+      action: FacetCutAction.Add,
       functionSelectors: getSelectors(facet)
     })
   }
@@ -54,7 +57,7 @@ async function deployDiamond () {
   let receipt
   // call to init function
   let functionCall = diamondInit.interface.encodeFunctionData('init', [
-    c250PriceOracle.address, timeProviderAddress, contractOwner.address
+    c250PriceOracleAddress, contractOwner.address
   ])
   tx = await diamondCut.diamondCut(cut, diamondInitAddress, functionCall)
   console.log('Diamond cut tx: ', tx.hash)

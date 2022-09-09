@@ -53,11 +53,11 @@ contract PremiumPlanFacet is PremiumBase {
         address referralEarner = address(0);
         if (accountIsInPremium(user.referralID)) {
             referralEarner = es.userAddresses[user.referralID];
+            emit PremiumReferralPayout(userID, user.referralID, es.upgradeFee.div(2));
         }
-        sendPayout(referralEarner, amountFromDollar(es.upgradeFee.div(2)), true);
+        sendPayout(referralEarner, es.upgradeFee.div(2), false);
 
         uint256 sponsorID = getPremiumSponsor(userID, 0);
-        emit PremiumReferralPayout(sponsorID, userID, amountFromDollar(es.upgradeFee.div(2)));
 
         uint256 uplineID = sponsorID;
         if (user.uplineID > 0) {

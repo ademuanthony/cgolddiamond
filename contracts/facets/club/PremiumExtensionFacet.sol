@@ -50,9 +50,9 @@ contract PremiumExtensionFacet is PremiumBase {
         if (accountIsInPremium(user.referralID)) {
             referralEarner = es.userAddresses[user.referralID];
         }
-        sendPayout(referralEarner, amountFromDollar(es.upgradeFee.div(2)), true);
+        sendPayout(referralEarner, es.upgradeFee.div(2), true);
 
-        emit PremiumReferralPayout(sponsorID, userID, amountFromDollar(es.upgradeFee.div(2)));
+        emit PremiumReferralPayout(userID, sponsorID, es.upgradeFee.div(2));
 
         uint256 matrixUpline = sponsorID;
         es.matrices[userID][1].registered = true;

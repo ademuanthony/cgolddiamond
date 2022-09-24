@@ -10,8 +10,6 @@ async function deployDiamond () {
   const contractOwner = accounts[0]
   const priceOracleAddress = process.env.PRICE_ORACLE_ADDRESS
 
-   const timeProviderAddress = process.env.TIME_PROVIDER_ADDRESS
-
   const DiamondInit = await ethers.getContractFactory('DiamondInit')
   let diamondInit = await DiamondInit.deploy()
   await diamondInit.deployed()
@@ -42,7 +40,7 @@ async function deployDiamond () {
   let receipt
   // call to init function
   let functionCall = diamondInit.interface.encodeFunctionData('init', [
-    priceOracleAddress, timeProviderAddress, contractOwner.address
+    priceOracleAddress, contractOwner.address
   ])
   tx = await diamondCut.diamondCut(cut, diamondInitAddress, functionCall)
   console.log('Diamond cut tx: ', tx.hash)

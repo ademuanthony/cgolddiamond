@@ -18,7 +18,7 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY]
     },
     mainnet: {
-      url: "https://polygon-rpc.com/",
+      url: "https://polygon-mainnet.g.alchemy.com/v2/"+process.env.ALCHEMY_KEY,
       accounts: [process.env.PRIVATE_KEY],
       // gasPrice: 36000000000
     },

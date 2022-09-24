@@ -21,17 +21,22 @@ contract Club250Base {
     function getDirectPremiumDownlineCount(uint256 userID, uint256 timestamp) internal view returns (uint256) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[userID];
-        if (user.premiumActivationDays.length == 0) {
+        uint256 premiumActivationDaysCount = user.premiumActivationDays.length;
+        if (premiumActivationDaysCount == 0) {
             return 0;
         }
 
-        if(user.premiumActivationDays.length == 1 && user.premiumActivationDays[user.premiumActivationDays.length-1] > timestamp) {
-            return 0;
+        if (premiumActivationDaysCount == 1) {
+            if (user.premiumActivationDays[0] > timestamp) {
+                return 0;
+            }
+            return user.directPremiumDownlines[user.premiumActivationDays[0]];
         }
 
-        for (uint256 i = user.premiumActivationDays.length - 1; i >= 0; i--) {
-            if (user.premiumActivationDays[i] <= timestamp) {
-                return user.directPremiumDownlines[user.premiumActivationDays[i]];
+        for (int256 i = int256(premiumActivationDaysCount - 1); i >= 0; i--) {
+            if (i < 0) break;
+            if (user.premiumActivationDays[uint256(i)] <= timestamp) {
+                return user.directPremiumDownlines[user.premiumActivationDays[uint256(i)]];
             }
         }
 
@@ -51,7 +56,11 @@ contract Club250Base {
         tokenAmount = LibClub250Storage.club250Storage().priceOracle.getQuote(address(this), uint128(dollarAmount), 10);
     }
 
-    function sendPayout(address account, uint256 dollarAmount, bool isInternal) internal {
+    function sendPayout(
+        address account,
+        uint256 dollarAmount,
+        bool isInternal
+    ) internal {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         uint256 tokenAmount = amountFromDollar(dollarAmount);
         uint256 fee = tokenAmount.mul(es.withdrawalFee).div(es.percentageDivisor);

@@ -66,8 +66,8 @@ contract ERC20Facet is IERC20, IERC20Facet, CallProtection {
     }
 
     function transfer(address _to, uint256 _amount) external override returns (bool) {
-        LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();
-        require(es.presaleBalance[msg.sender] < _amount, "INSUFFICIENT_AVAILABLE_BALANCE");
+        // LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();
+        // require(es.presaleBalance[msg.sender] < _amount, "INSUFFICIENT_AVAILABLE_BALANCE");
         _transfer(msg.sender, _to, _amount);
         return true;
     }
@@ -79,7 +79,7 @@ contract ERC20Facet is IERC20, IERC20Facet, CallProtection {
                 presalePart = es.presaleBalance[msg.sender];
             }
             es.presaleBalance[msg.sender] = es.presaleBalance[msg.sender].sub(presalePart);
-            es.presaleBalance[_to] = es.presaleBalance[_to].sub(presalePart);
+            es.presaleBalance[_to] = es.presaleBalance[_to].add(presalePart);
         }
         _transfer(msg.sender, _to, _amount);
         return true;
@@ -97,22 +97,13 @@ contract ERC20Facet is IERC20, IERC20Facet, CallProtection {
         LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();
         require(_from != address(0), "FROM_INVALID");
         require(es.allowances[_from][msg.sender] >= _amount, "INSUFFICIENT_ALLOWANCE");
-        require(es.presaleBalance[_from] < _amount, "INSUFFICIENT_AVAILABLE_BALANCE");
+        // require(es.presaleBalance[_from] < _amount, "INSUFFICIENT_AVAILABLE_BALANCE");
 
         // Update approval if not set to max uint256
         if (es.allowances[_from][msg.sender] != (2**256 - 1)) {
             uint256 newApproval = es.allowances[_from][msg.sender].sub(_amount);
             es.allowances[_from][msg.sender] = newApproval;
             emit Approval(_from, msg.sender, newApproval);
-        }
-
-        if (es.presaleBalance[_from] > 0) {
-            uint256 presalePart = _amount;
-            if (es.presaleBalance[_from] < _amount) {
-                presalePart = es.presaleBalance[_from];
-            }
-            es.presaleBalance[msg.sender] = es.presaleBalance[msg.sender].sub(presalePart);
-            es.presaleBalance[_to] = es.presaleBalance[_to].sub(presalePart);
         }
 
         _transfer(_from, _to, _amount);

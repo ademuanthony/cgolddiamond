@@ -224,7 +224,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             return (0, 0);
         }
 
-        for (uint256 day = getTheDayBefore(user.classicCheckpoint); day <= today; day += (1 days)) {
+        for (uint256 day = getTheDayBefore(user.classicCheckpoint + 1 days); day <= today; day += (1 days)) {
             if (getWeekday(day) == 0) {
                 continue;
             }

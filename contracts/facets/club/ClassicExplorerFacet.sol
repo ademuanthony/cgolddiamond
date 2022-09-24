@@ -138,4 +138,29 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
         }
         return (0);
     }
+
+    function getDirectPremiumDownlineCountExt(uint256 userID, uint256 timestamp) external view returns (uint256) {
+        LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
+        LibClub250Storage.User storage user = es.users[userID];
+        uint256 premiumActivationDaysCount = user.premiumActivationDays.length;
+        if (premiumActivationDaysCount == 0) {
+            return 0;
+        }
+
+        if (premiumActivationDaysCount == 1) {
+            if (user.premiumActivationDays[0] > timestamp) {
+                return 0;
+            }
+            return user.directPremiumDownlines[user.premiumActivationDays[0]];
+        }
+
+        for (int256 i = int256(premiumActivationDaysCount - 1); i >= 0; i--) {
+            if (i < 0) break;
+            if (user.premiumActivationDays[uint256(i)] <= timestamp) {
+                return user.directPremiumDownlines[user.premiumActivationDays[uint256(i)]];
+            }
+        }
+
+        return 0;
+    }
 }

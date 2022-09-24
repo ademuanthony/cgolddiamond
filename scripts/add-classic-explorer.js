@@ -16,7 +16,7 @@ async function deployDiamond () {
   
   console.log('Deploying facets')
   const FacetNames = [
-    'PremiumPlanFacet',
+    'ClassicPlanFacet',
   ]
   const cut = []
   for (const FacetName of FacetNames) {
@@ -28,7 +28,7 @@ async function deployDiamond () {
       //facetAddress: ethers.constants.AddressZero,
       facetAddress: facet.address,
       //action: FacetCutAction.Remove,
-      action: FacetCutAction.Add,
+      action: FacetCutAction.Replace,
       functionSelectors: getSelectors(facet)
     })
   }

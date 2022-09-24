@@ -1,20 +1,24 @@
 /* global ethers */
 /* eslint prefer-const: "off" */
+require('dotenv').config()
 
 const { getSelectors, FacetCutAction } = require('./libraries/diamond.js')
 
 async function deployDiamond () {
-  const diamondAddress = 'process.env.DEPLOYED_DIAMOND_ADDRESS'
+  const diamondAddress = process.env.DEPLOYED_DIAMOND_ADDRESS
+  const accounts = await ethers.getSigners()
+  const contractOwner = accounts[0]
+  const priceOracleAddress = process.env.PRICE_ORACLE_ADDRESS
 
   const DiamondInit = await ethers.getContractFactory('DiamondInit')
-  diamondInit = await DiamondInit.deploy()
+  let diamondInit = await DiamondInit.deploy()
   await diamondInit.deployed()
   console.log('DiamondInit deployed:', diamondInit.address)
   const diamondInitAddress = diamondInit.address
-  
+
   console.log('Deploying facets')
   const FacetNames = [
-    'ERC20Facet'
+    'ERC20Facet',
   ]
   const cut = []
   for (const FacetName of FacetNames) {
@@ -23,7 +27,9 @@ async function deployDiamond () {
     await facet.deployed()
     console.log(`${FacetName} deployed: ${facet.address}`)
     cut.push({
+      facetAddress: ethers.constants.AddressZero,
       facetAddress: facet.address,
+      //action: FacetCutAction.Remove,
       action: FacetCutAction.Replace,
       functionSelectors: getSelectors(facet)
     })
@@ -31,13 +37,13 @@ async function deployDiamond () {
 
   // upgrade diamond with facets
   console.log('')
-  console.log('Diamond Cut:', cut)
   const diamondCut = await ethers.getContractAt('IDiamondCut', diamondAddress)
-  const diamondInit = await ethers.getContractAt('DiamondInit', diamondInitAddress)
   let tx
   let receipt
   // call to init function
-  let functionCall = diamondInit.interface.encodeFunctionData('init')
+  let functionCall = diamondInit.interface.encodeFunctionData('init', [
+    priceOracleAddress, contractOwner.address
+  ])
   tx = await diamondCut.diamondCut(cut, diamondInitAddress, functionCall)
   console.log('Diamond cut tx: ', tx.hash)
   receipt = await tx.wait()

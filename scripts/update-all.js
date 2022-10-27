@@ -32,8 +32,8 @@ async function deployDiamond () {
   console.log('Deploying facets')
   const FacetNames = [
     //'GlobalFacet',
-    'SystemFacet',
-    //'ClassicPlanFacet',
+    //'SystemFacet',
+    'ClassicPlanFacet',
     //'PremiumPlanFacet',
     //'PremiumExtensionFacet',
   ]
@@ -45,7 +45,7 @@ async function deployDiamond () {
     console.log(`${FacetName} deployed: ${facet.address}`)
     cut.push({
       facetAddress: facet.address,
-      action: FacetCutAction.Add,
+      action: FacetCutAction.Replace,
       functionSelectors: getSelectors(facet)
     })
   }

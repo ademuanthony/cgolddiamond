@@ -136,6 +136,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             es.users[userID].activeDownlines[getTheDayBefore(block.timestamp)] = es.users[userID].referrals.length;
         }
         es.totalPayout = es.totalPayout.add(dollarAmount);
+        es.classicPayout[getTheDayBefore(block.timestamp)] = es.classicPayout[getTheDayBefore(block.timestamp)].add(dollarAmount);
         sendPayout(msg.sender, dollarAmount, false);
     }
 
@@ -192,6 +193,11 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             }
         }
 
+        if (es.classicPayin[today] == 0 && es.classicPayout[today.sub(1 days)] == 0) {
+            es.classicPayin[today] = es.classicPayin[today.sub(1 days)];
+        }
+        es.classicPayin[today] = es.classicPayin[today].add(es.activationFee);
+
         // taking the snapshot of the number of classic accounts
         es.activeGlobalDownlines[today] = es.classicIndex;
         if (today != es.classicActivationDays[es.classicActivationDays.length - 1]) {
@@ -230,6 +236,10 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             }
 
             if (day == user.activationDays[0]) {
+                continue;
+            }
+
+            if (es.classicPayin[today] < es.classicPayout[today.sub(1 days)]) {
                 continue;
             }
 

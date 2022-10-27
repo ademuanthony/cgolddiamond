@@ -33,6 +33,9 @@ library LibClub250Storage {
         // @dev user's matric for each part
         mapping(uint256 => mapping(uint256 => Matrix)) matrices;
         mapping(uint256 => LevelConfig) levelConfigurations;
+
+        mapping(uint256 => uint256) classicPayout;
+        mapping(uint256 => uint256) classicPayin;
     }
 
     struct ClassicConfig {

@@ -129,14 +129,15 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         require(es.userAddresses[userID] == msg.sender, "ACCESS_DENIED");
         (uint256 dollarAmount, uint256 earningCounter) = withdrawable(userID);
         require(dollarAmount > 0, "ZERO_WITHDRAWAL");
+
+        require(es.runningWithdrawalCloseTime >= block.timestamp, "NO_RUNNING_WITHDRAWAL_WINDOW");
+
+        es.classicWithdrawal = es.classicWithdrawal.add(dollarAmount);
+
         es.users[userID].classicCheckpoint = block.timestamp;
         es.users[userID].classicEarningCount[getClassicLevelAt(userID, block.timestamp)] = earningCounter;
-        // @dev update the downline count (if empty) at this checkpoint for the next call to getLevelAt
-        if (es.users[userID].activeDownlines[getTheDayBefore(block.timestamp)] == 0) {
-            es.users[userID].activeDownlines[getTheDayBefore(block.timestamp)] = es.users[userID].referrals.length;
-        }
+       
         es.totalPayout = es.totalPayout.add(dollarAmount);
-        es.classicPayout[getTheDayBefore(block.timestamp)] = es.classicPayout[getTheDayBefore(block.timestamp)].add(dollarAmount);
         sendPayout(msg.sender, dollarAmount, false);
     }
 
@@ -193,10 +194,12 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             }
         }
 
-        if (es.classicPayin[today] == 0 && es.classicPayout[today.sub(1 days)] == 0) {
-            es.classicPayin[today] = es.classicPayin[today.sub(1 days)];
+        es.classicDeposit = es.classicDeposit.add(es.activationFee);
+        if(es.classicDeposit >= es.classicWithdrawal && es.runningWithdrawalCloseTime <= block.timestamp) {
+            es.runningWithdrawalCloseTime = block.timestamp.add(1 days);
+            es.classicDeposit = 0;
+            es.classicWithdrawal = 0;
         }
-        es.classicPayin[today] = es.classicPayin[today].add(es.activationFee);
 
         // taking the snapshot of the number of classic accounts
         es.activeGlobalDownlines[today] = es.classicIndex;
@@ -236,10 +239,6 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             }
 
             if (day == user.activationDays[0]) {
-                continue;
-            }
-
-            if (es.classicPayin[today] < es.classicPayout[today.sub(1 days)]) {
                 continue;
             }
 

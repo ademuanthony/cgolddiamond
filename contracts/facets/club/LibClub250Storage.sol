@@ -36,6 +36,10 @@ library LibClub250Storage {
 
         mapping(uint256 => uint256) classicPayout;
         mapping(uint256 => uint256) classicPayin;
+
+        uint256 classicWithdrawal;
+        uint256 runningWithdrawalCloseTime;
+        uint256 classicDeposit;
     }
 
     struct ClassicConfig {

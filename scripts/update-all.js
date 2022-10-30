@@ -34,6 +34,7 @@ async function deployDiamond () {
     //'GlobalFacet',
     //'SystemFacet',
     'ClassicPlanFacet',
+    //'ClassicExplorerFacet',
     //'PremiumPlanFacet',
     //'PremiumExtensionFacet',
   ]

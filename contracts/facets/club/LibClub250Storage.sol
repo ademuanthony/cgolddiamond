@@ -40,6 +40,8 @@ library LibClub250Storage {
         uint256 classicWithdrawal;
         uint256 runningWithdrawalCloseTime;
         uint256 classicDeposit;
+        uint256 lastClassicWithdrawal;
+        uint256 controlStartdate;
     }
 
     struct ClassicConfig {

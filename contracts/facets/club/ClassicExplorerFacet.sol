@@ -17,6 +17,9 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
     function withdrawableAlt(uint256 userID) external view returns (uint256, uint256) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[userID];
+        if (user.activationDays.length == 0) {
+            return (0, 0);
+        }
         uint256 amount;
 
         uint256 earningCounter;
@@ -26,6 +29,10 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
 
         for (uint256 day = getTheDayBefore(user.classicCheckpoint); day < today; day += (1 days)) {
             if (getWeekday(day) == 0) {
+                continue;
+            }
+
+            if (day == user.activationDays[0]) {
                 continue;
             }
             uint256 level = publicGClassicLevelAt(userID, day);
@@ -172,11 +179,23 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
 
     function classicPaymentState(uint256 _day) external view returns (uint256 payin, uint256 payout) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        if(es.runningWithdrawalCloseTime <= block.timestamp) {
+        if (es.runningWithdrawalCloseTime <= block.timestamp) {
             payin = 100;
             payout = 100;
         }
         payin = es.classicDeposit;
         payout = es.classicWithdrawal;
+    }
+
+    function refreshAccount(uint256 userID) external {
+        LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
+        uint256 today = getTheDayBefore(block.timestamp);
+        if (
+            es.users[userID].activationDays.length == 0 ||
+            es.users[userID].activationDays[es.users[userID].activationDays.length - 1] < today
+        ) {
+            es.users[userID].activationDays.push(today);
+        }
+        es.users[userID].activeDownlines[today] = es.users[userID].referrals.length;
     }
 }

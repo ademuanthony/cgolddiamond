@@ -263,7 +263,11 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[userID];
         uint256 directDownlineCount = user.referrals.length;
-        if (directDownlineCount == 0 || user.activationDays.length == 0) return (0);
+        if (directDownlineCount == 0 || user.activationDays.length == 0) {
+            return (0);
+        }
+
+        timestamp = getTheDayBefore(timestamp.add(1 days));
         if (timestamp < user.activationDays[0]) {
             return 0;
         }
@@ -273,21 +277,15 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         uint256 directPremiumCount = getDirectPremiumDownlineCount(userID, timestamp);
         // if the day is < his first activation date, 0
 
-        if (getTheDayBefore(timestamp) != getTheDayBefore(block.timestamp)) {
-            for (uint256 day = timestamp; day >= 0; day.sub(1 days)) {
-                globalIndex = es.activeGlobalDownlines[getTheDayBefore(day)];
-                if (globalIndex > 0) break;
-            }
-
-            for (uint256 i = user.activationDays.length - 1; i >= 0; i--) {
-                if (user.activationDays[i] <= timestamp) {
-                    directDownlineCount = user.activeDownlines[user.activationDays[i]];
-                    break;
-                }
+        for (uint256 i = user.activationDays.length - 1; i >= 0; i--) {
+            if (user.activationDays[i] <= timestamp) {
+                directDownlineCount = user.activeDownlines[user.activationDays[i]];
+                globalIndex = es.activeGlobalDownlines[user.activationDays[i]];
+                break;
             }
         }
 
-        uint256 globalDownlines = globalIndex - user.classicIndex;
+        (, uint256 globalDownlines) = globalIndex.trySub(user.classicIndex);
 
         for (uint256 i = 20; i > 0; i--) {
             if (

@@ -42,6 +42,11 @@ library LibClub250Storage {
         uint256 classicDeposit;
         uint256 lastClassicWithdrawal;
         uint256 controlStartdate;
+
+        address lagacyVersion;
+        address claimSender;
+
+        mapping(uint256 => bool) v1ClaimedIds;
     }
 
     struct ClassicConfig {

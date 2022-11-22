@@ -17,8 +17,8 @@ module.exports = {
       url: "https://rpc-mumbai.maticvigil.com",
       accounts: [process.env.PRIVATE_KEY]
     },
-    mainnet: {
-      url: "https://polygon-mainnet.g.alchemy.com/v2/"+process.env.ALCHEMY_KEY,
+    polygon: {
+      url: "https://quaint-young-vineyard.matic.quiknode.pro/"+process.env.QUICK_NODE,
       accounts: [process.env.PRIVATE_KEY],
       // gasPrice: 36000000000
     },

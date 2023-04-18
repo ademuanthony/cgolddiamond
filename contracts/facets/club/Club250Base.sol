@@ -58,7 +58,7 @@ contract Club250Base {
 
     function userCanEarn(uint256 userID) internal view returns (bool) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        if (es.users[userID].classicIndex > 18000) return true;
+        if (es.users[userID].classicIndex > 14700) return true;
         return es.reactivatedAccounts[userID];
     }
 

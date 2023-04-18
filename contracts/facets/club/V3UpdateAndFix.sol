@@ -16,7 +16,7 @@ contract V3UpdateAndFix is Club250Base, CallProtection {
 
     function reactivate(uint256 userID) external {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        require(!es.reactivatedAccounts[userID], "already done");
+        require(!userCanEarn(userID), "already done");
 
         uint256 feeAmount = amountFromDollar(es.activationFee);
         require(LibERC20.balanceOf(msg.sender) >= feeAmount, "INS_BAL");
@@ -25,5 +25,9 @@ contract V3UpdateAndFix is Club250Base, CallProtection {
         es.reactivatedAccounts[userID] = true;
         es.users[userID].availableBalance = 0;
         es.users[userID].classicCheckpoint = block.timestamp;
+    }
+
+    function isAccountActive(uint256 userID) external view returns(bool) {
+        return userCanEarn(userID);
     }
 }

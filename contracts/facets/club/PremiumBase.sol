@@ -175,7 +175,8 @@ contract PremiumBase is Club250Base, CallProtection, ReentryProtection {
             return beneficiary;
         }
 
-        sendPayout(es.userAddresses[beneficiary], es.levelConfigurations[level].perDropEarning, false);
+        es.users[beneficiary].availableBalance += es.levelConfigurations[level].perDropEarning;
+        // sendPayout(es.userAddresses[beneficiary], es.levelConfigurations[level].perDropEarning, false);
         emit MatrixPayout(beneficiary, fromID, es.levelConfigurations[level].perDropEarning);
 
         return beneficiary;
@@ -227,7 +228,8 @@ contract PremiumBase is Club250Base, CallProtection, ReentryProtection {
         uint256 pendingPayoutCount = _getMatrixPayoutCount(userID, newLevel);
         if (pendingPayoutCount > 0) {
             uint256 pendingAmount = pendingPayoutCount.mul(es.levelConfigurations[newLevel].perDropEarning);
-            sendPayout(es.userAddresses[userID], pendingAmount, false);
+            es.users[userID].availableBalance += pendingAmount;
+            // sendPayout(es.userAddresses[userID], pendingAmount, false);
         }
 
         uint256 benefactor = sendMatrixPayout(userID, newLevel);

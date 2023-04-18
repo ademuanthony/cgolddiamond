@@ -18,7 +18,7 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY]
     },
     polygon: {
-      url: "https://quaint-young-vineyard.matic.quiknode.pro/"+process.env.QUICK_NODE,
+      url: "https://rpc-mainnet.matic.quiknode.pro",
       accounts: [process.env.PRIVATE_KEY],
       // gasPrice: 36000000000
     },

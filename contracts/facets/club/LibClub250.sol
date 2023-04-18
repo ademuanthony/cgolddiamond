@@ -22,9 +22,9 @@ library LibClub250 {
         es.upgradeFee = 20 * 1e18;
         es.withdrawalFee = 100;
         if (es.classicReferralPercentages.length == 0) {
-            es.classicReferralPercentages.push(10);
-            es.classicReferralPercentages.push(7);
-            es.classicReferralPercentages.push(5);
+            es.classicReferralPercentages.push(100);
+            es.classicReferralPercentages.push(70);
+            es.classicReferralPercentages.push(50);
         }
         es.percentageDivisor = 1000;
         es.traversalDept = 10;

@@ -47,6 +47,8 @@ library LibClub250Storage {
         address claimSender;
 
         mapping(uint256 => bool) v1ClaimedIds;
+
+        mapping(uint256 => bool) reactivatedAccounts;
     }
 
     struct ClassicConfig {
@@ -77,6 +79,8 @@ library LibClub250Storage {
         mapping(uint256 => uint256) classicEarningCount;
         mapping(uint256 => CircleCheckpoint[]) classicCircles;
         mapping(uint256 => uint256) classicCircleCount;
+
+        uint256 availableBalance;
     }
 
     struct CircleCheckpoint {

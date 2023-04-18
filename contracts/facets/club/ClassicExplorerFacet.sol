@@ -175,16 +175,19 @@ contract ClassicExplorerFacet is Club250Base, CallProtection, ReentryProtection 
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         es.classicDeposit = _payin;
         es.classicWithdrawal = _payout;
+        if(_payin == _payout) {
+            es.runningWithdrawalCloseTime = block.timestamp.add(3 days);
+        }
     }
 
     function classicPaymentState(uint256 _day) external view returns (uint256 payin, uint256 payout) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        if (es.runningWithdrawalCloseTime <= block.timestamp) {
+        payin = es.classicDeposit;
+        payout = es.classicWithdrawal;
+        if (es.runningWithdrawalCloseTime >= block.timestamp) {
             payin = 100;
             payout = 100;
         }
-        payin = es.classicDeposit;
-        payout = es.classicWithdrawal;
     }
 
     function refreshAccount(uint256 userID) external {

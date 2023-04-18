@@ -38,20 +38,22 @@ async function deployDiamond () {
     //'PremiumPlanFacet',
     //'PremiumExtensionFacet',
     //'MigrationFacet',
-    'Migration2Facet',
-    //'Migration3Facet'
+    //'Migration2Facet',
+    //'Migration3Facet',
+    'RecoveryFacet'
   ]
   const cut = []
   for (const FacetName of FacetNames) {
     const Facet = await ethers.getContractFactory(FacetName)
     const facet = await Facet.deploy()
     await facet.deployed()
+    //const facet = await Facet.attach(diamondAddress)
     console.log(`${FacetName} deployed: ${facet.address}`)
     cut.push({
       //facetAddress: ethers.constants.AddressZero,
       facetAddress: facet.address,
       //action: FacetCutAction.Remove,
-      action: FacetCutAction.Replace,
+      action: FacetCutAction.Add,
       functionSelectors: getSelectors(facet)
     })
   }

@@ -30,6 +30,7 @@ contract PremiumPlanFacet is PremiumBase {
         require(!accountIsInPremium(userID), "DUP");
 
         LibClub250Storage.User storage user = es.users[userID];
+        LibClub250Storage.User storage upline = es.users[es.users[userID].referralID];
 
         LibERC20.burn(msg.sender, amountFromDollar(es.upgradeFee));
 
@@ -37,25 +38,26 @@ contract PremiumPlanFacet is PremiumBase {
         uint256 lastPremiumDay;
         uint256 lastPremiumCount;
 
-        if (es.users[es.users[userID].referralID].premiumActivationDays.length > 0) {
-            lastPremiumDay = es.users[es.users[userID].referralID].premiumActivationDays[
-                es.users[es.users[userID].referralID].premiumActivationDays.length - 1
+        if (upline.premiumActivationDays.length > 0) {
+            lastPremiumDay = upline.premiumActivationDays[
+                upline.premiumActivationDays.length - 1
             ];
 
-            lastPremiumCount = es.users[es.users[userID].referralID].directPremiumDownlines[lastPremiumDay];
+            lastPremiumCount = upline.directPremiumDownlines[lastPremiumDay];
         }
         if (lastPremiumDay < today) {
-            es.users[es.users[userID].referralID].premiumActivationDays.push(today);
+            upline.premiumActivationDays.push(today);
         }
 
-        es.users[es.users[userID].referralID].directPremiumDownlines[today] = lastPremiumCount.add(1);
+        upline.directPremiumDownlines[today] = lastPremiumCount.add(1);
 
         address referralEarner = address(0);
         if (accountIsInPremium(user.referralID)) {
             referralEarner = es.userAddresses[user.referralID];
+            upline.availableBalance += es.upgradeFee.div(2);
             emit PremiumReferralPayout(userID, user.referralID, es.upgradeFee.div(2));
         }
-        sendPayout(referralEarner, es.upgradeFee.div(2), false);
+        // sendPayout(referralEarner, es.upgradeFee.div(2), false);
 
         uint256 sponsorID = getPremiumSponsor(userID, 0);
 

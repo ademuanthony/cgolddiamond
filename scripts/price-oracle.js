@@ -10,6 +10,11 @@ async function deployDiamond () {
   await c250PriceOracle.deployed()
   console.log('C250PriceOracle deployed:', c250PriceOracle.address)
 
+  const SystemFacet = await ethers.getContractFactory('SystemFacet')
+  let system = await SystemFacet.attach(process.env.DEPLOYED_DIAMOND_ADDRESS);
+
+  await system.setPriceOracle(c250PriceOracle.address)
+
   return c250PriceOracle.address
 }
 

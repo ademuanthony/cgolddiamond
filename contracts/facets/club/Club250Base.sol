@@ -56,11 +56,13 @@ contract Club250Base {
         tokenAmount = LibClub250Storage.club250Storage().priceOracle.getQuote(address(this), uint128(dollarAmount), 10);
     }
 
-    function sendPayout(
-        address account,
-        uint256 dollarAmount,
-        bool isInternal
-    ) internal {
+    function userCanEarn(uint256 userID) internal view returns (bool) {
+        LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
+        if (es.users[userID].classicIndex > 18000) return true;
+        return es.reactivatedAccounts[userID];
+    }
+
+    function sendPayout(address account, uint256 dollarAmount, bool isInternal) internal {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         uint256 tokenAmount = amountFromDollar(dollarAmount);
         uint256 fee = tokenAmount.mul(es.withdrawalFee).div(es.percentageDivisor);

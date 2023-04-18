@@ -77,11 +77,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         return LibClub250Storage.club250Storage().userAccounts[addr].length;
     }
 
-    function _register(
-        uint256 referralID,
-        uint256 uplineID,
-        address addr
-    ) internal {
+    function _register(uint256 referralID, uint256 uplineID, address addr) internal {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         require(referralID <= es.lastID, "NF");
         es.lastID++;
@@ -98,22 +94,13 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         emit NewUser(addr, es.lastID, referralID);
     }
 
-    function registerAndActivate(
-        uint256 referralID,
-        uint256 uplineID,
-        address addr
-    ) external {
+    function registerAndActivate(uint256 referralID, uint256 uplineID, address addr) external {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         register(referralID, uplineID, addr);
         activate(es.lastID);
     }
 
-    function addAndActivateMultipleAccounts(
-        uint256 referralID,
-        uint256 uplineID,
-        address addr,
-        uint256 no
-    ) external {
+    function addAndActivateMultipleAccounts(uint256 referralID, uint256 uplineID, address addr, uint256 no) external {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         require(no <= 50, "TOO_MANY");
         require(LibERC20.balanceOf(msg.sender) >= amountFromDollar(es.activationFee).mul(no), "ISB");
@@ -128,16 +115,16 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         require(es.userAddresses[userID] == msg.sender, "ACCESS_DENIED");
         (uint256 dollarAmount, uint256 earningCounter) = withdrawable(userID);
-        require(dollarAmount > 0, "ZERO_WITHDRAWAL");
+        require(dollarAmount > 5e18, "MIN_WITHDRAWAL");
 
         require(es.runningWithdrawalCloseTime >= block.timestamp, "NO_RUNNING_WITHDRAWAL_WINDOW");
 
-        es.classicWithdrawal = es.classicWithdrawal.add(dollarAmount);
+        es.classicWithdrawal = es.classicWithdrawal.add(dollarAmount).sub(es.users[userID].availableBalance);
 
         es.users[userID].classicCheckpoint = block.timestamp;
         es.users[userID].classicEarningCount[getClassicLevelAt(userID, block.timestamp)] = earningCounter;
-       
-        es.totalPayout = es.totalPayout.add(dollarAmount);
+
+        // es.totalPayout = es.totalPayout.add(dollarAmount);
         sendPayout(msg.sender, dollarAmount, false);
     }
 
@@ -145,11 +132,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         return uint8((timestamp / (1 days) + 4) % 7);
     }
 
-    function register(
-        uint256 referralID,
-        uint256 uplineID,
-        address addr
-    ) public noReentry validReferralID(referralID) {
+    function register(uint256 referralID, uint256 uplineID, address addr) public noReentry validReferralID(referralID) {
         require(LibClub250Storage.club250Storage().live, "NS");
         require(LibClub250Storage.club250Storage().userAccounts[addr].length == 0, "DUP");
         _register(referralID, uplineID, addr);
@@ -159,44 +142,49 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         require(es.live, "NS");
         require(es.userAddresses[id] != address(0), "NF");
-        require(es.users[id].classicIndex == 0, "DUP");
+
+        LibClub250Storage.User storage currentUser = es.users[id];
+
+        require(currentUser.classicIndex == 0, "DUP");
         uint256 feeAmount = amountFromDollar(es.activationFee);
         require(LibERC20.balanceOf(msg.sender) >= feeAmount, "INS_BAL");
         LibERC20.burn(msg.sender, feeAmount);
-        es.classicIndex++;
-        es.users[id].classicIndex = es.classicIndex;
-        es.users[id].classicCheckpoint = block.timestamp;
+        currentUser.classicIndex = ++es.classicIndex;
+        currentUser.classicCheckpoint = block.timestamp;
         uint256 today = getTheDayBefore(block.timestamp);
-        if (es.users[id].referralID != 0) {
-            es.users[es.users[id].referralID].referrals.push(id);
-            if (
-                es.users[es.users[id].referralID].activationDays.length == 0 ||
-                es.users[es.users[id].referralID].activationDays[es.users[es.users[id].referralID].activationDays.length - 1] < today
-            ) {
-                es.users[es.users[id].referralID].activationDays.push(today);
+
+        if (currentUser.referralID != 0) {
+            LibClub250Storage.User storage upline = es.users[currentUser.referralID];
+            upline.referrals.push(id);
+            if (upline.activationDays.length == 0 || upline.activationDays[upline.activationDays.length - 1] < today) {
+                upline.activationDays.push(today);
             }
-            es.users[es.users[id].referralID].activeDownlines[today] = es.users[es.users[id].referralID].referrals.length;
-            uint256 upline = es.users[id].referralID;
-            uint256 refTotal;
+            upline.activeDownlines[today] = upline.referrals.length;
+
+            // uint256 refTotal;
+            uint256 referralID = currentUser.referralID;
             for (uint256 i = 0; i < es.classicReferralPercentages.length; i++) {
-                if (upline != 0) {
-                    if (es.userAddresses[upline] != address(0)) {
-                        uint256 refAmount = feeAmount.mul(es.classicReferralPercentages[i]).div(es.percentageDivisor);
-                        refTotal = refTotal.add(refAmount);
-                        LibERC20.mint(es.userAddresses[upline], amountFromDollar(refAmount), true);
-                        emit ClassicRefBonus(id, upline, i + 1);
+                if (referralID != 0) {
+                    if (es.userAddresses[referralID] != address(0)) {
+                        uint256 refAmount = es.activationFee.mul(es.classicReferralPercentages[i]).div(es.percentageDivisor);
+                        upline.availableBalance += refAmount;
+                        // refTotal = refTotal.add(refAmount);
+                        // LibERC20.mint(es.userAddresses[upline], amountFromDollar(refAmount), true);
+                        emit ClassicRefBonus(id, referralID, i + 1);
                     }
-                    upline = es.users[upline].referralID;
-                } else break;
+                    referralID = es.users[referralID].referralID;
+                    continue;
+                }
+                break;
             }
-            if (refTotal > 0) {
-                es.totalPayout = es.totalPayout.add(refTotal);
-            }
+            // if (refTotal > 0) {
+            //     es.totalPayout = es.totalPayout.add(refTotal);
+            // }
         }
 
         es.classicDeposit = es.classicDeposit.add(es.activationFee);
-        if(es.classicDeposit >= es.classicWithdrawal && es.runningWithdrawalCloseTime <= block.timestamp) {
-            es.runningWithdrawalCloseTime = block.timestamp.add(1 days);
+        if (es.classicDeposit >= es.classicWithdrawal && es.runningWithdrawalCloseTime <= block.timestamp) {
+            es.runningWithdrawalCloseTime = block.timestamp.add(3 days);
             es.classicDeposit = 0;
             es.classicWithdrawal = 0;
         }
@@ -218,6 +206,10 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
 
     // @dev returns the current unpaid earnings of the user
     function withdrawable(uint256 userID) public view returns (uint256, uint256) {
+        if (!userCanEarn(userID)) {
+            return (0, 0);
+        }
+
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[userID];
         if (user.activationDays.length == 0) {
@@ -254,6 +246,8 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
                 earningCounter = earningCounter.add(1);
             }
         }
+
+        amount += user.availableBalance;
 
         return (amount, user.classicEarningCount[lastLevel].add(earningCounter));
     }
@@ -341,15 +335,9 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         user.classicEarningCount[level] = 0;
     }
 
-    function excessQualification(uint256 _userID)
-        public
-        view
-        returns (
-            uint256 globalExcess,
-            uint256 directReferralsExcess,
-            uint256 directPremiumExcess
-        )
-    {
+    function excessQualification(
+        uint256 _userID
+    ) public view returns (uint256 globalExcess, uint256 directReferralsExcess, uint256 directPremiumExcess) {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
         LibClub250Storage.User storage user = es.users[_userID];
         uint256 level = getClassicLevelAt(_userID, block.timestamp);
@@ -373,7 +361,9 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         }
     }
 
-    function getUser(uint256 userID)
+    function getUser(
+        uint256 userID
+    )
         external
         view
         returns (

@@ -16,7 +16,7 @@ async function deployDiamond () {
   await system.setPriceOracle(c250PriceOracle.address)
 
   return c250PriceOracle.address
-}
+} 
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

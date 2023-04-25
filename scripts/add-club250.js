@@ -29,7 +29,7 @@ async function deployDiamond () {
       action: FacetCutAction.Add,
       functionSelectors: getSelectors(facet)
     })
-  }
+  } 
 
   // upgrade diamond with facets
   console.log('')

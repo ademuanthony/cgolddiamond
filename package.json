@@ -11,7 +11,7 @@
     "url": "git+https://github.com/mudgen/contracts-starter.git"
   },
   "author": "Nick Mudge",
-  "license": "MIT",
+  "license": "MIT", 
   "bugs": {
     "url": "https://github.com/mudgen/contracts-starter/issues"
   },

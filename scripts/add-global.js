@@ -11,7 +11,7 @@ async function deployDiamond () {
   const priceOracleAddress = process.env.PRICE_ORACLE_ADDRESS
 
    const timeProviderAddress = process.env.TIME_PROVIDER_ADDRESS
-
+ 
   const DiamondInit = await ethers.getContractFactory('DiamondInit')
   const diamondInit = await DiamondInit.deploy()
   await diamondInit.deployed()

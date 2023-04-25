@@ -36,7 +36,7 @@ async function deployDiamond () {
   // upgrade diamond with facets
   console.log('')
   const diamondCut = await ethers.getContractAt('IDiamondCut', diamondAddress)
-  let tx
+  let tx 
   let receipt
   // call to init function
   let functionCall = diamondInit.interface.encodeFunctionData('init', [

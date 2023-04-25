@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
 import "./PremiumBase.sol";
 import "./LibClub250Storage.sol";
 import "../shared/Access/CallProtection.sol";
@@ -30,7 +34,7 @@ contract PremiumPlanFacet is PremiumBase {
         require(!accountIsInPremium(userID), "DUP");
 
         LibClub250Storage.User storage user = es.users[userID];
-        LibClub250Storage.User storage upline = es.users[es.users[userID].referralID];
+        LibClub250Storage.User storage upline = es.users[user.referralID];
 
         LibERC20.burn(msg.sender, amountFromDollar(es.upgradeFee));
 
@@ -39,9 +43,7 @@ contract PremiumPlanFacet is PremiumBase {
         uint256 lastPremiumCount;
 
         if (upline.premiumActivationDays.length > 0) {
-            lastPremiumDay = upline.premiumActivationDays[
-                upline.premiumActivationDays.length - 1
-            ];
+            lastPremiumDay = upline.premiumActivationDays[upline.premiumActivationDays.length - 1];
 
             lastPremiumCount = upline.directPremiumDownlines[lastPremiumDay];
         }
@@ -51,20 +53,13 @@ contract PremiumPlanFacet is PremiumBase {
 
         upline.directPremiumDownlines[today] = lastPremiumCount.add(1);
 
-        address referralEarner = address(0);
         if (accountIsInPremium(user.referralID)) {
-            referralEarner = es.userAddresses[user.referralID];
-            upline.availableBalance += es.upgradeFee.div(2);
+            // upline.availableBalance += es.upgradeFee.div(2);
+            sendPayout(es.userAddresses[user.referralID], es.upgradeFee.div(2), false);
             emit PremiumReferralPayout(userID, user.referralID, es.upgradeFee.div(2));
         }
-        // sendPayout(referralEarner, es.upgradeFee.div(2), false);
 
-        uint256 sponsorID = getPremiumSponsor(userID, 0);
-
-        uint256 uplineID = sponsorID;
-        if (user.uplineID > 0) {
-            uplineID = user.uplineID;
-        }
+        uint256 uplineID = user.uplineID > 0 ? user.uplineID : getPremiumSponsor(userID, 0);
 
         uint256 matrixUpline = getAvailableUplineInMatrix(uplineID, 1, true, random);
         es.matrices[userID][1].registered = true;
@@ -112,16 +107,7 @@ contract PremiumPlanFacet is PremiumBase {
         return userID == 1 || LibClub250Storage.club250Storage().users[userID].premiumLevel > 0;
     }
 
-    function getDirectLegs(uint256 userID, uint256 level)
-        external
-        view
-        returns (
-            uint256 left,
-            uint256 leftLevel,
-            uint256 right,
-            uint256 rightLevel
-        )
-    {
+    function getDirectLegs(uint256 userID, uint256 level) external view returns (uint256 left, uint256 leftLevel, uint256 right, uint256 rightLevel) {
         return _getDirectLegs(userID, level);
     }
 

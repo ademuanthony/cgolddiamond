@@ -12,7 +12,7 @@ async function deployDiamond (timeProviderAddress) {
   const diamondCutFacet = await DiamondCutFacet.deploy()
   await diamondCutFacet.deployed()
   console.log('DiamondCutFacet deployed:', diamondCutFacet.address)
-
+ 
   // deploy Diamond
   const Diamond = await ethers.getContractFactory('C250Gold')
   const diamond = await Diamond.deploy(contractOwner.address, diamondCutFacet.address)
@@ -48,9 +48,14 @@ async function deployDiamond (timeProviderAddress) {
     'DiamondLoupeFacet',
     'OwnershipFacet',
     'ERC20Facet',
+    'GlobalFacet',
     'SystemFacet',
     'ClassicPlanFacet',
-    'PremiumPlanFacet'
+    'ClassicExplorerFacet',
+    'PremiumPlanFacet',
+    'PremiumExtensionFacet',
+    'RecoveryFacet',
+    'V3UpdateAndFix'
   ]
   const cut = []
   for (const FacetName of FacetNames) {

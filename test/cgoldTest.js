@@ -97,7 +97,7 @@ describe('C250Gold', async function () {
     const accounts = await classicPlanFacet.getAccounts(addr1.address, 0);
     expect(parseInt(accounts[0])).to.equal(1);
   })
-
+ 
   it("register Should not create duplicate account", async function () {
     const [addr1] = await ethers.getSigners();
 

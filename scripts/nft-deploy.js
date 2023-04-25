@@ -14,7 +14,7 @@ async function deployDiamond () {
   console.log('CGoldArtefact deployed:', cGoldArtefact.address)
 
   return cGoldArtefact.address
-}
+} 
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

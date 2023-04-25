@@ -4,7 +4,7 @@ require('dotenv').config()
 
 const { ethers } = require('hardhat')
 const { getSelectors, FacetCutAction } = require('./libraries/diamond.js')
-
+ 
 async function deployDiamond () {
   const diamondAddress = process.env.DEPLOYED_DIAMOND_ADDRESS
   const accounts = await ethers.getSigners()

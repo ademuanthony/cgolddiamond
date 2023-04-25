@@ -6,6 +6,10 @@ import "./LibClub250Storage.sol";
 import "../shared/Access/CallProtection.sol";
 import "../ERC20/LibERC20.sol";
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
 contract V3UpdateAndFix is Club250Base, CallProtection {
     function setClassicReferral() external protectedCall {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();

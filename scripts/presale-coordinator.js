@@ -13,7 +13,7 @@ async function main() {
   await c250Gold.deployed();
 
   console.log("TokenMarket deployed to:", c250Gold.address);
-}
+} 
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

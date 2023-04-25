@@ -32,7 +32,7 @@ async function deployDiamond () {
       action: FacetCutAction.Add,
       functionSelectors: getSelectors(facet)
     })
-  }
+  } 
 
   // if it is the first day, the classic level fails
   

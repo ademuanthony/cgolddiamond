@@ -23,8 +23,9 @@ async function deployDiamond () {
   //   timeProviderAddress = timeProvider.address
 
   const DiamondInit = await ethers.getContractFactory('DiamondInit')
-  let diamondInit = await DiamondInit.deploy()
-  await diamondInit.deployed()
+  // let diamondInit = await DiamondInit.deploy()
+  let diamondInit = DiamondInit.attach(process.env.DIAMOND_INIT_ADDRESS)
+  // await diamondInit.deployed()
   console.log('DiamondInit deployed:', diamondInit.address)
 
   const diamondInitAddress = diamondInit.address
@@ -33,14 +34,15 @@ async function deployDiamond () {
   const FacetNames = [
     //'GlobalFacet',
     //'SystemFacet',
-    //'ClassicPlanFacet',
+    // 'ClassicPlanFacet',
     //'ClassicExplorerFacet',
-    //'PremiumPlanFacet',
+    'PremiumPlanFacet',
     //'PremiumExtensionFacet',
     //'MigrationFacet',
     //'Migration2Facet',
     //'Migration3Facet',
-    'RecoveryFacet'
+    // 'RecoveryFacet',
+    // 'V3UpdateAndFix'
   ]
   const cut = []
   for (const FacetName of FacetNames) {
@@ -53,7 +55,7 @@ async function deployDiamond () {
       //facetAddress: ethers.constants.AddressZero,
       facetAddress: facet.address,
       //action: FacetCutAction.Remove,
-      action: FacetCutAction.Add,
+      action: FacetCutAction.Replace,
       functionSelectors: getSelectors(facet)
     })
   }
@@ -74,6 +76,11 @@ async function deployDiamond () {
     throw Error(`Diamond upgrade failed: ${tx.hash}`)
   }
   console.log('Completed diamond cut')
+
+  const SystemFacet = ethers.getContractFactory('SystemFacet')
+  const systemContract = await SystemFacet.attach(diamondAddress);
+  await systemContract.setPriceOracle('0x949c7a1f33c5ca3b1ad346e273d6653910775082')
+
   return diamondAddress
 }
 

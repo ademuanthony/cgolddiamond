@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
+
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./LibClub250Storage.sol";

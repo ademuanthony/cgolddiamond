@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
+
 library LibERC1115Storage {
     bytes32 constant ERC_1115_STORAGE_POSITION = keccak256("C250Gold.storage.location.erc1115");
 

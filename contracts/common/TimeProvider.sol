@@ -3,6 +3,10 @@
  */
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TimeProvider is Ownable {

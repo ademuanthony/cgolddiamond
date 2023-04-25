@@ -6,7 +6,7 @@ const { deployDiamond } = require('../scripts/deploy.js')
 const { FacetCutAction } = require('../scripts/libraries/diamond.js')
 
 const { assert } = require('chai')
-
+ 
 // The diamond example comes with 8 function selectors
 // [cut, loupe, loupe, loupe, loupe, erc165, transferOwnership, owner]
 // This bug manifests if you delete something from the final

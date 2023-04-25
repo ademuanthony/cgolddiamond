@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
 import "./PremiumBase.sol";
 import "./LibClub250Storage.sol";
 import {LibDiamond} from "../../libraries/LibDiamond.sol";

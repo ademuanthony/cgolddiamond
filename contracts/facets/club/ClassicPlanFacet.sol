@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
+
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./Club250Base.sol";
@@ -118,6 +123,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         require(dollarAmount > 5e18, "MIN_WITHDRAWAL");
 
         require(es.runningWithdrawalCloseTime >= block.timestamp, "NO_RUNNING_WITHDRAWAL_WINDOW");
+        require(es.users[userID].premiumLevel > 0, "NOT_IN_PREMIUM");
 
         es.classicWithdrawal = es.classicWithdrawal.add(dollarAmount).sub(es.users[userID].availableBalance);
 

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/******************************************************************************\
+* Author:Ademu Anthony (https://twitter.com/Oxa2e)
+/******************************************************************************/
+
 library LibClub250Storage {
     bytes32 constant CLUB250_STORAGE_POSITION = keccak256("CLUB250.storage.location");
 

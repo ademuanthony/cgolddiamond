@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 * Author:Ademu Anthony (https://twitter.com/Oxa2e)
 /******************************************************************************/
 
-
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./Club250Base.sol";
@@ -171,13 +170,9 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
             uint256 referralID = currentUser.referralID;
             for (uint256 i = 0; i < es.classicReferralPercentages.length; i++) {
                 if (referralID != 0) {
-                    if (es.userAddresses[referralID] != address(0)) {
-                        uint256 refAmount = es.activationFee.mul(es.classicReferralPercentages[i]).div(es.percentageDivisor);
-                        upline.availableBalance += refAmount;
-                        // refTotal = refTotal.add(refAmount);
-                        // LibERC20.mint(es.userAddresses[upline], amountFromDollar(refAmount), true);
-                        emit ClassicRefBonus(id, referralID, i + 1);
-                    }
+                    uint256 refAmount = es.activationFee.mul(es.classicReferralPercentages[i]).div(es.percentageDivisor);
+                    es.users[referralID].availableBalance += refAmount;
+                    emit ClassicRefBonus(id, referralID, i + 1);
                     referralID = es.users[referralID].referralID;
                     continue;
                 }

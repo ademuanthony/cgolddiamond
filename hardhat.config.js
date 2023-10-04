@@ -18,7 +18,8 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY]
     },
     polygon: {
-      url: "https://rpc-mainnet.matic.quiknode.pro",
+      // url: "https://rpc-mainnet.matic.quiknode.pro",
+      url: "https://polygon-rpc.com/",
       accounts: [process.env.PRIVATE_KEY],
       // gasPrice: 36000000000
     },

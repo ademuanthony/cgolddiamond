@@ -43,6 +43,7 @@ library LibERC20 {
         require(_amount > 0, "MINT_ZERO_AMOUNT");
 
         es.balances[_to] = es.balances[_to].add(_amount);
+        es.sellableBalance[_to] = es.sellableBalance[_to].add(_amount);
         es.totalSupply = es.totalSupply.add(_amount);
 
         if(_isInternal) {

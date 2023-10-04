@@ -128,6 +128,12 @@ contract ERC20Facet is IERC20, IERC20Facet, CallProtection {
         uint256 _amount
     ) internal {
         LibERC20Storage.ERC20Storage storage es = LibERC20Storage.erc20Storage();
+        require(!es.blacklisted[_from], "NOT_ALLOWED");
+        // if selling, check available balance and decrease before proceeding
+        if (es.exchange[_to]) {
+            require(es.sellableBalance[_from] >= _amount, "NOT ENOUGH SELLABLE BALANCE");
+            es.sellableBalance[_from] = es.sellableBalance[_from] - _amount;
+        }
 
         es.balances[_from] = es.balances[_from].sub(_amount);
         es.balances[_to] = es.balances[_to].add(_amount);

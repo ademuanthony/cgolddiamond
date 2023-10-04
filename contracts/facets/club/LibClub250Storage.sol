@@ -85,6 +85,7 @@ library LibClub250Storage {
         mapping(uint256 => uint256) classicCircleCount;
 
         uint256 availableBalance;
+        uint256 classicBalance;
     }
 
     struct CircleCheckpoint {

@@ -34,4 +34,9 @@ contract V3UpdateAndFix is Club250Base, CallProtection {
     function isAccountActive(uint256 userID) external view returns(bool) {
         return userCanEarn(userID);
     }
+
+    function updateClassicRequirement() external protectedCall {
+        LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
+        es.classicConfigurations[1] = LibClub250Storage.ClassicConfig(1, 0, 50, 25 * 1e16, 20, 1, 0, 50);
+    }
 }

@@ -62,9 +62,9 @@ library LibClub250 {
         return es.activationFee > 0;
     }
 
-    function buildClassicConfig() private {
+    function buildClassicConfig() public {
         LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
-        es.classicConfigurations[1] = LibClub250Storage.ClassicConfig(1, 0, 1000, 25 * 1e16, 20, 1, 0, 1000);
+        es.classicConfigurations[1] = LibClub250Storage.ClassicConfig(1, 0, 50, 25 * 1e16, 20, 1, 0, 50);
         es.classicConfigurations[2] = LibClub250Storage.ClassicConfig(3, 2, 4000, 25 * 1e16, 40, 2, 0, 4000);
         es.classicConfigurations[3] = LibClub250Storage.ClassicConfig(6, 5, 9500, 28 * 1e16, 60, 3, 0, 9500);
         es.classicConfigurations[4] = LibClub250Storage.ClassicConfig(10, 9, 20000, 44 * 1e16, 80, 4, 0, 20000);

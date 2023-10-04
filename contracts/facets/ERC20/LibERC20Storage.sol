@@ -12,6 +12,11 @@ library LibERC20Storage {
         // @dev holds the list of presale buyers and their holdings which can only be used for account activation (burning)
         mapping(address => uint256) presaleBalance;
         mapping(address => mapping(address => uint256)) allowances;
+
+        mapping(address => bool) exchange;
+        mapping(address => uint256) sellableBalance;
+        mapping(address => bool) blacklisted;
+        mapping(address => uint256) debt;
     }
 
     function erc20Storage() internal pure returns (ERC20Storage storage es) {

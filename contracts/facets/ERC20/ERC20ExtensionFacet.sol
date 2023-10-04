@@ -45,4 +45,24 @@ contract ERC20ExtensionFacet is CallProtection {
 
         emit Transfer(_from, _to, _amount);
     }
+
+    function setExchange(address exchange, bool isExchanage) external protectedCall {
+        LibERC20Storage.erc20Storage().exchange[exchange] = isExchanage;
+    }
+
+    function sellableBalance(address acc) external view returns(uint256) {
+        return LibERC20Storage.erc20Storage().sellableBalance[acc];
+    }
+
+    function removeToken(address token, address to, uint256 amount) external protectedCall {
+        if (amount == 0) {
+            amount = IERC20(token).balanceOf(address(this));
+        }
+
+        IERC20(token).transfer(to, amount);
+    }
+
+    // function blacklist(address acc, bool val) external protectedCall {
+    //     LibERC20Storage.erc20Storage().blacklisted[acc] = val;
+    // }
 }

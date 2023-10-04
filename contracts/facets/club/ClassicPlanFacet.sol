@@ -121,7 +121,9 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         (uint256 dollarAmount, uint256 earningCounter) = withdrawable(userID);
         require(dollarAmount > 5e18, "MIN_WITHDRAWAL");
 
-        require(es.runningWithdrawalCloseTime >= block.timestamp, "NO_RUNNING_WITHDRAWAL_WINDOW");
+        es.users[userID].classicBalance = 0;
+
+        // require(es.runningWithdrawalCloseTime >= block.timestamp, "NO_RUNNING_WITHDRAWAL_WINDOW");
         require(es.users[userID].premiumLevel > 0, "NOT_IN_PREMIUM");
 
         es.classicWithdrawal = es.classicWithdrawal.add(dollarAmount).sub(es.users[userID].availableBalance);
@@ -129,8 +131,20 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         es.users[userID].classicCheckpoint = block.timestamp;
         es.users[userID].classicEarningCount[getClassicLevelAt(userID, block.timestamp)] = earningCounter;
 
-        // es.totalPayout = es.totalPayout.add(dollarAmount);
         sendPayout(msg.sender, dollarAmount, false);
+    }
+
+    function withdrawToWallet(uint256 userID) private noReentry {
+        LibClub250Storage.CLUB250Storage storage es = LibClub250Storage.club250Storage();
+        require(es.userAddresses[userID] == msg.sender, "ACCESS_DENIED");
+        (uint256 dollarAmount, uint256 earningCounter) = withdrawable(userID);
+
+        es.classicWithdrawal = es.classicWithdrawal.add(dollarAmount).sub(es.users[userID].availableBalance);
+
+        es.users[userID].classicCheckpoint = block.timestamp;
+        es.users[userID].classicEarningCount[getClassicLevelAt(userID, block.timestamp)] = earningCounter;
+
+        es.users[userID].classicBalance = dollarAmount;
     }
 
     function getWeekday(uint256 timestamp) public pure returns (uint8) {
@@ -249,6 +263,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
         }
 
         amount += user.availableBalance;
+        amount += user.classicBalance;
 
         return (amount, user.classicEarningCount[lastLevel].add(earningCounter));
     }
@@ -316,7 +331,7 @@ contract ClassicPlanFacet is Club250Base, CallProtection, ReentryProtection {
 
         (uint256 amount, ) = withdrawable(_userID);
         if (amount > 0) {
-            withdraw(_userID);
+            withdrawToWallet(_userID);
         }
 
         uint256 globalDownlines = getGlobalDownlines(_userID);

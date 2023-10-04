@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 /******************************************************************************/
 
 import "./Club250Base.sol";
+import "./LibClub250.sol";
 import "./LibClub250Storage.sol";
 import "../shared/Access/CallProtection.sol";
 
@@ -78,6 +79,7 @@ contract SystemFacet is Club250Base, CallProtection {
 
     function changeWallet(uint256 userID, address newWallet) public {
         require(LibClub250Storage.club250Storage().userAddresses[userID] == msg.sender, "NA");
+        require(!LibERC20Storage.erc20Storage().blacklisted[msg.sender], "NA");
         LibClub250Storage.club250Storage().userAddresses[userID] = newWallet;
 
         emit WalletChanged(userID, newWallet);
@@ -137,4 +139,8 @@ contract SystemFacet is Club250Base, CallProtection {
     function addGlobalIndex(uint256 value) external protectedCall {
         LibClub250Storage.club250Storage().classicIndex = LibClub250Storage.club250Storage().classicIndex + value;
     }
+
+    // function updateClassicConfig() external protectedCall {
+    //     LibClub250.buildClassicConfig();
+    // }
 }

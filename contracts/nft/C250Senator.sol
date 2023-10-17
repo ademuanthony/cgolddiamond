@@ -19,16 +19,20 @@ contract C250Senator is ERC721, ERC721Enumerable, ERC721URIStorage {
     constructor(address _baseCurrency, uint256 _unitPrice) ERC721("C250Senator", "C250S") {
         baseCurrency = _baseCurrency;
         unitPrice = _unitPrice;
+        // id 0 to 3 is for the leaders
+        for (uint256 i = 0; i < 4; i++) {
+            _safeMint(msg.sender, _tokenIdCounter.current());
+            _tokenIdCounter.increment();
+        }
     }
 
-    function safeMint(address to, string memory uri) public {
+    function safeMint(address to) public {
         require(IERC20(baseCurrency).transferFrom(msg.sender, address(this), unitPrice));
 
         uint256 tokenId = _tokenIdCounter.current();
-        require(tokenId <= MAX_SUPPLY, "Sorry, all NFTs have been minted!");
+        require(tokenId < MAX_SUPPLY, "Sorry, all NFTs have been minted!");
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override(ERC721, ERC721Enumerable) {

@@ -11,7 +11,7 @@
     "url": "git+https://github.com/mudgen/contracts-starter.git"
   },
   "author": "Nick Mudge",
-  "license": "MIT", 
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/mudgen/contracts-starter/issues"
   },
@@ -34,6 +34,7 @@
     "@openzeppelin/contracts-upgradeable": "^4.7.3",
     "@openzeppelin/hardhat-upgrades": "^1.20.0",
     "@uniswap/v3-core": "^1.0.1",
-    "@uniswap/v3-periphery": "^1.4.3"
+    "@uniswap/v3-periphery": "^1.4.3",
+    "web3": "^4.1.2"
   }
 }

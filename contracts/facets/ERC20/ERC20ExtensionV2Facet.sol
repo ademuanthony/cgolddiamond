@@ -16,4 +16,8 @@ contract ERC20ExtensionV2Facet is CallProtection {
     function blacklist(address acc, bool val) external protectedCall {
         LibERC20Storage.erc20Storage().blacklisted[acc] = val;
     }
+
+    function setExchangeAddress(address exchange, bool isExchanage) external protectedCall {
+        LibERC20Storage.erc20Storage().exchange[exchange] = isExchanage;
+    }
 }
